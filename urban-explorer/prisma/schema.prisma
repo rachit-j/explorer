@@ -60,3 +60,22 @@ model Setting {
   allowSignup Boolean @default(true)
   updatedAt DateTime @updatedAt
 }
+
+model Spot {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  latitude    Float
+  longitude   Float
+  visitedAt   DateTime
+  createdBy   String
+  createdAt   DateTime     @default(now())
+  images      SpotImage[]  // 👈 relation to SpotImage
+}
+
+model SpotImage {
+  id      String   @id @default(cuid())
+  url     String
+  spotId  String
+  spot    Spot     @relation(fields: [spotId], references: [id], onDelete: Cascade)
+}
