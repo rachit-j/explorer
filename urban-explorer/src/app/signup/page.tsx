@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
@@ -8,6 +8,20 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [allowed, setAllowed] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkSignup = async () => {
+      const res = await fetch("/api/admin/settings");
+      const data = await res.json();
+      if (!data.allowSignup) {
+        router.push("/signin");
+      } else {
+        setAllowed(true);
+      }
+    };
+    checkSignup();
+  }, [router]);
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
@@ -26,9 +40,20 @@ export default function SignupPage() {
     }
   }
 
+  if (allowed === null) {
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-gray-900 text-white">
+        <p>Checking signup availability...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-900 text-white">
-      <form onSubmit={handleSignup} className="bg-gray-800 p-6 rounded shadow-md w-full max-w-sm">
+      <form
+        onSubmit={handleSignup}
+        className="bg-gray-800 p-6 rounded shadow-md w-full max-w-sm"
+      >
         <h2 className="text-2xl mb-4">Sign Up</h2>
         {error && <p className="text-red-400 mb-2">{error}</p>}
         <input
@@ -47,7 +72,9 @@ export default function SignupPage() {
           required
           className="w-full mb-4 p-2 rounded bg-gray-700"
         />
-        <button className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded">Create Account</button>
+        <button className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded">
+          Create Account
+        </button>
       </form>
     </div>
   );

@@ -54,3 +54,9 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
+model Setting {
+  id        String  @id @default(cuid())
+  allowSignup Boolean @default(true)
+  updatedAt DateTime @updatedAt
+}

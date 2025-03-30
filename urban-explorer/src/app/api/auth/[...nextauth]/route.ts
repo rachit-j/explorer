@@ -3,6 +3,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
+import { authOptions } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
@@ -54,6 +55,6 @@ const handler = NextAuth({
     },
     secret: process.env.NEXTAUTH_SECRET,
   });
-  
+
 
 export { handler as GET, handler as POST };
