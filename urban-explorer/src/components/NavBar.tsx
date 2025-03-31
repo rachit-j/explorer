@@ -17,6 +17,11 @@ export default function NavBar() {
           Admin Panel
         </button>
       )}
+      {session?.user?.role === "admin" && (
+        <button onClick={() => router.push("/spots/crud")} className="hover:underline">
+          Spots DB
+        </button>
+      )}
       <button onClick={() => signOut({ callbackUrl: "/signin" })} className="ml-auto bg-red-600 px-3 py-1 rounded hover:bg-red-700">
         Sign Out
       </button>

@@ -5,7 +5,7 @@ import L from 'leaflet';
 import { useEffect, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 
-const defaultPosition = [37.7749, -122.4194]; // SF
+const defaultPosition = [32.7157, -117.1611]; // SD
 
 interface Spot {
   id: string;
@@ -167,7 +167,21 @@ export default function MapClient() {
               Upload Image(s)
             </button>
           </form>
-
+          <button
+            onClick={async () => {
+              const res = await fetch(`/api/spots/${selected.id}`, { method: 'DELETE' });
+              if (res.ok) {
+                // Remove the spot from the map
+                setSpots(prev => prev.filter(spot => spot.id !== selected.id));
+                setSelected(null); // Close the modal after deleting
+              } else {
+                alert('Failed to delete the spot');
+              }
+            }}
+            className="bg-red-600 text-white mt-4 px-4 py-2 rounded"
+          >
+            Delete Spot
+          </button>
           <button onClick={() => setSelected(null)} className="text-red-500 mt-4 block">
             Close
           </button>
