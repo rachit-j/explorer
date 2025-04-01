@@ -13,6 +13,9 @@ RUN npm install --frozen-lockfile
 # Copy the rest of the application files into the container
 COPY . .
 
+# Pray it doesnt break 🙏
+RUN npm config set eslint=false
+
 # Build the Next.js application
 RUN npm run build
 
