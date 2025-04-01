@@ -11,7 +11,11 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
-  await prisma.user.delete({ where: { id: params.id } });
+  const { id } = params;
+
+  // Handle the deletion of the user
+  await prisma.user.delete({ where: { id } });
+  
   return NextResponse.json({ success: true });
 }
 
