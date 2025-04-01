@@ -14,7 +14,7 @@ RUN npm install --frozen-lockfile
 COPY . .
 
 # Pray it doesnt break 🙏
-RUN npm config set eslint=false
+# RUN npm config set eslint=false
 
 # Build the Next.js application
 RUN npm run build
