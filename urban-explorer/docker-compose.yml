@@ -16,6 +16,7 @@ services:
     volumes:
       #- ./urban-explorer:/app
       - ./prisma:/app/prisma  # Persist the Prisma database file (dev.db) here
+      - ./uploads:/app/public/uploads  # Persist uploaded files here
     depends_on: []
     networks:
       - app-network
