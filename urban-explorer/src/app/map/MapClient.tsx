@@ -233,11 +233,12 @@ export default function MapClient() {
               });
 
               if (res.ok) {
-                e.currentTarget.reset();
-                setNewPinCoords(null);
+                const form = e.currentTarget as HTMLFormElement;
+                form.reset(); // ✅ safely reset before unmounting the modal
                 const { spot } = await res.json();
                 setSpots((prev) => [...prev, spot]);
-              }
+                setNewPinCoords(null); // ✅ unmount afterward
+              }              
             }}
           >
             <input
