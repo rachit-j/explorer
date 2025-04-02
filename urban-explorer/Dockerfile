@@ -16,6 +16,9 @@ COPY . .
 # Generate Prisma client
 RUN npx prisma generate
 
+# Push Prisma schema to the database (create missing tables)
+RUN npx prisma db push
+
 # Build the Next.js application
 RUN npm run build
 
