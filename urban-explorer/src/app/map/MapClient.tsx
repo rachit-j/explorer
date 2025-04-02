@@ -22,7 +22,7 @@ export default function MapClient() {
   const [spots, setSpots] = useState<Spot[]>([]);
   const [selected, setSelected] = useState<Spot | null>(null);
   const [newPinCoords, setNewPinCoords] = useState<[number, number] | null>(null);
-  const [previews, setPreviews] = useState<string[]>([]);
+  const [previews, setPreviews] = useState<{ url: string; file: File }[]>([]);
 
   useEffect(() => {
     fetch("/api/spots")
@@ -112,76 +112,67 @@ export default function MapClient() {
             onSubmit={async (e) => {
               e.preventDefault();
 
-              const input = e.currentTarget.elements.namedItem("file") as HTMLInputElement;
-              if (!input) {
-                alert("No file input found");
-                return;
-              }
+              if (!selected?.id) return alert("No selected spot");
+              if (previews.length === 0) return alert("No files selected");
 
-              const files = input.files;
-              if (!files || !selected?.id) {
-                alert("No files selected or spot not selected");
-                return;
-              }
-
-              for (let file of Array.from(files)) {
+              for (let preview of previews) {
+                let file = preview.file;
                 let processedFile: File;
-              
-                // ✅ If HEIC, convert to PNG
-                if (file.type === 'image/heic' || file.name.endsWith('.heic')) {
+
+                // ✅ HEIC to PNG conversion
+                if (file.type === "image/heic" || file.name.endsWith(".heic")) {
                   try {
-                    const convertedBlob = await heic2any({
+                    const convertedBlob = (await heic2any({
                       blob: file,
-                      toType: 'image/png',
-                    }) as Blob;
-              
-                    processedFile = new File([convertedBlob], file.name.replace(/\.heic$/, '.png'), {
-                      type: 'image/png',
-                    });
+                      toType: "image/png",
+                    })) as Blob;
+
+                    processedFile = new File(
+                      [convertedBlob],
+                      file.name.replace(/\.heic$/, ".png"),
+                      { type: "image/png" }
+                    );
                   } catch (err) {
-                    console.error('HEIC conversion failed', err);
-                    alert('Failed to convert HEIC image.');
+                    console.error("HEIC conversion failed", err);
+                    alert("Failed to convert HEIC image.");
                     continue;
                   }
                 } else {
                   processedFile = file;
                 }
-              
-                // ✅ Compress the image before uploading
+
+                // ✅ Compress
                 const compressedFile = await imageCompression(processedFile, {
                   maxSizeMB: 1,
                   maxWidthOrHeight: 1920,
                   useWebWorker: true,
                 });
-              
+
                 const formData = new FormData();
                 formData.append("file", compressedFile);
-              
+
                 const res = await fetch(`/api/spots/${selected.id}/upload`, {
                   method: "POST",
                   body: formData,
                 });
-              
+
                 if (!res.ok) {
                   console.error("Image upload failed:", await res.text());
                   alert("Failed to upload image");
                   continue;
                 }
-              
+
                 const { url, id } = await res.json();
-                setSpots(prev =>
-                  prev.map(s =>
+                setSpots((prev) =>
+                  prev.map((s) =>
                     s.id === selected.id
-                      ? {
-                          ...s,
-                          images: [...(s.images || []), { url, id }]
-                        }
+                      ? { ...s, images: [...(s.images || []), { url, id }] }
                       : s
                   )
                 );
               }
+
               setPreviews([]);
-              input.value = "";
             }}
           >
             <label className="block mt-4 w-full p-4 border-2 border-dashed border-gray-400 rounded text-center cursor-pointer bg-gray-100 text-gray-600">
@@ -195,18 +186,29 @@ export default function MapClient() {
                 onChange={(e) => {
                   const files = e.target.files;
                   if (files) {
-                    const urls = Array.from(files).map(f => URL.createObjectURL(f));
+                    const urls = Array.from(files).map((f) => ({
+                      url: URL.createObjectURL(f),
+                      file: f,
+                    }));
                     setPreviews(urls);
                   }
                 }}
               />
             </label>
             <div className="flex gap-2 mt-2 flex-wrap">
-              {previews.map((url, i) => (
-                <img key={i} src={url} alt={`Preview ${i + 1}`} className="w-24 h-24 object-cover rounded" />
+              {previews.map((preview, i) => (
+                <img
+                  key={i}
+                  src={preview.url}
+                  alt={`Preview ${i + 1}`}
+                  className="w-24 h-24 object-cover rounded"
+                />
               ))}
             </div>
-            <button className="bg-blue-600 text-white mt-2 px-4 py-1 rounded w-full" type="submit">
+            <button
+              className="bg-blue-600 text-white mt-2 px-4 py-1 rounded w-full"
+              type="submit"
+            >
               Upload Image(s)
             </button>
           </form>
@@ -225,6 +227,27 @@ export default function MapClient() {
             Delete Spot
           </button>
           <button onClick={() => setSelected(null)} className="text-red-500 mt-4 block">
+            Close
+          </button>
+          <button
+            onClick={async () => {
+              const res = await fetch(`/api/spots/${selected.id}`, { method: 'DELETE' });
+              if (res.ok) {
+                setSpots(prev => prev.filter(spot => spot.id !== selected.id));
+                setSelected(null);
+              } else {
+                alert('Failed to delete the spot');
+              }
+            }}
+            className="bg-red-600 text-white mt-4 px-4 py-2 rounded"
+          >
+            Delete Spot
+          </button>
+
+          <button
+            onClick={() => setSelected(null)}
+            className="text-red-500 mt-4 block"
+          >
             Close
           </button>
         </div>
