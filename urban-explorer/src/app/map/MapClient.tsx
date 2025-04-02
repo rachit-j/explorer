@@ -4,6 +4,8 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { useEffect, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
+import imageCompression from 'browser-image-compression';
+import heic2any from 'heic2any';
 
 const defaultPosition: [number, number] = [32.7157, -117.1611]; // SD
 
@@ -123,20 +125,27 @@ export default function MapClient() {
               }
 
               for (let file of Array.from(files)) {
+                // ✅ Compress before upload
+                const compressedFile = await imageCompression(file, {
+                  maxSizeMB: 1, // Limit file size to ~1MB
+                  maxWidthOrHeight: 1920, // Resize to max 1920px dimension
+                  useWebWorker: true,
+                });
+              
                 const formData = new FormData();
-                formData.append("file", file);
-
+                formData.append("file", compressedFile);
+              
                 const res = await fetch(`/api/spots/${selected.id}/upload`, {
                   method: "POST",
                   body: formData,
                 });
-
+              
                 if (!res.ok) {
                   console.error("Image upload failed:", await res.text());
                   alert("Failed to upload image");
                   continue;
                 }
-
+              
                 const { url, id } = await res.json();
                 setSpots(prev =>
                   prev.map(s =>
@@ -149,6 +158,7 @@ export default function MapClient() {
                   )
                 );
               }
+              
 
               setPreviews([]);
               input.value = "";
