@@ -12,7 +12,7 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - ADMIN_EMAILS=${ADMIN_EMAILS}
     volumes:
-      - ./urban-explorer:/app
+      #- ./urban-explorer:/app
       - ./prisma:/app/prisma  # Persist the Prisma database file (dev.db) here
     depends_on: []
     networks:
