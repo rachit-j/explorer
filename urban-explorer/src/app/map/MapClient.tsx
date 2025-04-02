@@ -125,10 +125,32 @@ export default function MapClient() {
               }
 
               for (let file of Array.from(files)) {
-                // ✅ Compress before upload
-                const compressedFile = await imageCompression(file, {
-                  maxSizeMB: 1, // Limit file size to ~1MB
-                  maxWidthOrHeight: 1920, // Resize to max 1920px dimension
+                let processedFile: File;
+              
+                // ✅ If HEIC, convert to PNG
+                if (file.type === 'image/heic' || file.name.endsWith('.heic')) {
+                  try {
+                    const convertedBlob = await heic2any({
+                      blob: file,
+                      toType: 'image/png',
+                    }) as Blob;
+              
+                    processedFile = new File([convertedBlob], file.name.replace(/\.heic$/, '.png'), {
+                      type: 'image/png',
+                    });
+                  } catch (err) {
+                    console.error('HEIC conversion failed', err);
+                    alert('Failed to convert HEIC image.');
+                    continue;
+                  }
+                } else {
+                  processedFile = file;
+                }
+              
+                // ✅ Compress the image before uploading
+                const compressedFile = await imageCompression(processedFile, {
+                  maxSizeMB: 1,
+                  maxWidthOrHeight: 1920,
                   useWebWorker: true,
                 });
               
@@ -158,8 +180,6 @@ export default function MapClient() {
                   )
                 );
               }
-              
-
               setPreviews([]);
               input.value = "";
             }}
