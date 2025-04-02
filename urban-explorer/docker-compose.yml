@@ -3,7 +3,9 @@ version: '3.8'
 services:
   # Next.js Application
   app:
-    build: .
+    build:
+      context: ./urban-explorer
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     environment:
