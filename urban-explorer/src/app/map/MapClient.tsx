@@ -109,9 +109,18 @@ export default function MapClient() {
           <form
             onSubmit={async (e) => {
               e.preventDefault();
+
               const input = e.currentTarget.elements.namedItem("file") as HTMLInputElement;
-              const files = input?.files;
-              if (!files || !selected?.id) return;
+              if (!input) {
+                alert("No file input found");
+                return;
+              }
+
+              const files = input.files;
+              if (!files || !selected?.id) {
+                alert("No files selected or spot not selected");
+                return;
+              }
 
               for (let file of Array.from(files)) {
                 const formData = new FormData();
@@ -122,19 +131,23 @@ export default function MapClient() {
                   body: formData,
                 });
 
-                if (res.ok) {
-                  const { url, id } = await res.json();
-                  setSpots(prev =>
-                    prev.map(s =>
-                      s.id === selected.id
-                        ? {
-                            ...s,
-                            images: [...(s.images || []), { url, id }]
-                          }
-                        : s
-                    )
-                  );
+                if (!res.ok) {
+                  console.error("Image upload failed:", await res.text());
+                  alert("Failed to upload image");
+                  continue;
                 }
+
+                const { url, id } = await res.json();
+                setSpots(prev =>
+                  prev.map(s =>
+                    s.id === selected.id
+                      ? {
+                          ...s,
+                          images: [...(s.images || []), { url, id }]
+                        }
+                      : s
+                  )
+                );
               }
 
               setPreviews([]);
@@ -160,7 +173,7 @@ export default function MapClient() {
             </label>
             <div className="flex gap-2 mt-2 flex-wrap">
               {previews.map((url, i) => (
-                <img key={i} src={url} className="w-24 h-24 object-cover rounded" />
+                <img key={i} src={url} alt={`Preview ${i + 1}`} className="w-24 h-24 object-cover rounded" />
               ))}
             </div>
             <button className="bg-blue-600 text-white mt-2 px-4 py-1 rounded w-full" type="submit">
