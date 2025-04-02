@@ -16,17 +16,12 @@ export default function AdminUserPage() {
 
   useEffect(() => {
     if (status === "loading") return;
-  
-    if (!session) {
-      router.push("/signin");
+
+    if (!session || !session.user || session.user.role !== "admin") {
+      router.push(session ? "/" : "/signin");
       return;
     }
-  
-    if (session.user.role !== "admin") {
-      router.push("/");
-      return;
-    }
-  
+
     fetchUsers();
     fetchToggle();
   }, [status, session, router]);
@@ -93,14 +88,19 @@ export default function AdminUserPage() {
     await fetch(`/api/admin/users/${userId}`, { method: "DELETE" });
     fetchUsers();
   }
-  if (status === "loading" || !session || session.user.role !== "admin") {
+
+  if (
+    status === "loading" ||
+    !session ||
+    !session.user ||
+    session.user.role !== "admin"
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black text-white">
         <p>Loading admin panel...</p>
       </div>
     );
   }
-  
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">

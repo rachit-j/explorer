@@ -7,14 +7,16 @@ import { join } from "path";
 
 const prisma = new PrismaClient();
 
-export async function DELETE(req: NextRequest, { params }: { params: { spotId: string } }) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ spotId: string }> }
+) {
+  const { spotId } = await params;
+
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
-
-  // Await params here
-  const { spotId } = await params; // Await this before using
 
   try {
     const spot = await prisma.spot.findUnique({
@@ -29,14 +31,12 @@ export async function DELETE(req: NextRequest, { params }: { params: { spotId: s
       where: { id: spotId },
     });
 
-    // Delete images associated with the spot if needed
-    const images = await prisma.spotImage.findMany({ where: { spotId: spotId } });
+    const images = await prisma.spotImage.findMany({ where: { spotId } });
     for (const image of images) {
       const filePath = join(process.cwd(), "public", image.url);
       if (existsSync(filePath)) {
         unlinkSync(filePath);
       }
-
       await prisma.spotImage.delete({ where: { id: image.id } });
     }
 

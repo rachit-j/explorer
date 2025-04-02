@@ -1,5 +1,5 @@
 import NextAuth from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
@@ -44,7 +44,7 @@ const handler = NextAuth({
       async jwt({ token, user }) {
         if (user) {
           token.id = user.id;
-          token.email = user.email;
+          token.email = user.email!;
           token.role = user.role;
         }
         return token;

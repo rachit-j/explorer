@@ -9,15 +9,14 @@ const prisma = new PrismaClient();
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { spotId: string } }
+  { params }: { params: Promise<{ spotId: string }> }
 ) {
+  const { spotId } = await params;
+
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
-
-  // Awaiting params to extract spotId properly
-  const { spotId } = await params; // <-- await params here!
 
   if (!spotId) {
     return NextResponse.json({ error: "Spot ID is missing" }, { status: 400 });
@@ -41,9 +40,9 @@ export async function POST(
 
   const fileUrl = `/uploads/${spotId}/${filename}`;
 
-  const savedImage = await prisma.spotImage.create({
+  await prisma.spotImage.create({
     data: {
-      spotId: spotId,
+      spotId,
       url: fileUrl,
     },
   });

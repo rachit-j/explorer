@@ -5,7 +5,7 @@ import L from 'leaflet';
 import { useEffect, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 
-const defaultPosition = [32.7157, -117.1611]; // SD
+const defaultPosition: [number, number] = [32.7157, -117.1611]; // SD
 
 interface Spot {
   id: string;
@@ -171,9 +171,8 @@ export default function MapClient() {
             onClick={async () => {
               const res = await fetch(`/api/spots/${selected.id}`, { method: 'DELETE' });
               if (res.ok) {
-                // Remove the spot from the map
                 setSpots(prev => prev.filter(spot => spot.id !== selected.id));
-                setSelected(null); // Close the modal after deleting
+                setSelected(null);
               } else {
                 alert('Failed to delete the spot');
               }
@@ -217,10 +216,11 @@ export default function MapClient() {
           <form
             onSubmit={async (e) => {
               e.preventDefault();
-              const form = e.currentTarget;
+              const formData = new FormData(e.currentTarget);
+
               const data = {
-                title: form.title.value,
-                description: form.description.value,
+                title: formData.get("title") as string,
+                description: formData.get("description") as string,
                 latitude: newPinCoords[0],
                 longitude: newPinCoords[1],
                 visitedAt: new Date().toISOString(),
@@ -233,7 +233,7 @@ export default function MapClient() {
               });
 
               if (res.ok) {
-                form.reset();
+                e.currentTarget.reset();
                 setNewPinCoords(null);
                 const { spot } = await res.json();
                 setSpots((prev) => [...prev, spot]);

@@ -29,7 +29,7 @@ export async function POST(req: Request) {
         latitude: body.latitude,
         longitude: body.longitude,
         visitedAt: new Date(body.visitedAt),
-        createdBy: session.user.email,
+        createdBy: session.user.email ?? "unknown@user",
       },
     });
   
