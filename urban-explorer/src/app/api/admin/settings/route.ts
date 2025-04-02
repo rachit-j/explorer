@@ -12,16 +12,31 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
+
   if (!session || session.user.role !== "admin") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
   const { allowSignup } = await req.json();
-  const updated = await prisma.setting.upsert({
-    where: { id: (await prisma.setting.findFirst())?.id || "" },
-    update: { allowSignup },
-    create: { allowSignup },
-  });
 
-  return NextResponse.json({ success: true, setting: updated });
+  try {
+    const existingSetting = await prisma.setting.findFirst();
+
+    let updated;
+    if (existingSetting) {
+      updated = await prisma.setting.update({
+        where: { id: existingSetting.id },
+        data: { allowSignup },
+      });
+    } else {
+      updated = await prisma.setting.create({
+        data: { allowSignup },
+      });
+    }
+
+    return NextResponse.json({ success: true, setting: updated });
+  } catch (error) {
+    console.error("[SETTINGS UPDATE ERROR]", error);
+    return NextResponse.json({ error: "Failed to update setting" }, { status: 500 });
+  }
 }
