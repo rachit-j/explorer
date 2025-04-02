@@ -38,7 +38,7 @@ export async function POST(
   mkdirSync(uploadPath, { recursive: true });
   writeFileSync(join(uploadPath, filename), buffer);
 
-  const fileUrl = `/public/uploads/${spotId}/${filename}`;
+  const fileUrl = `/uploads/${spotId}/${filename}`;
 
   await prisma.spotImage.create({
     data: {
