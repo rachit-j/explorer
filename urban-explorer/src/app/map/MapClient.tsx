@@ -94,9 +94,11 @@ export default function MapClient() {
 
           {/* Existing images */}
           <div className="flex flex-wrap gap-2 mt-2">
-            {selected.images?.map((img) => (
+          {selected.images?.map((img) => {
+            const safeUrl = img.url.replace(/^\/public/, '');
+            return (
               <div key={img.id || img.url} className="relative">
-                <img src={img.url} alt="" className="w-24 h-24 object-cover rounded" />
+                <img src={safeUrl} alt="" className="w-24 h-24 object-cover rounded" />
                 <button
                   className="absolute top-0 right-0 text-xs bg-red-600 text-white px-1 rounded"
                   onClick={() => handleDeleteImage(selected.id, img.id)}
@@ -104,7 +106,8 @@ export default function MapClient() {
                   ✕
                 </button>
               </div>
-            ))}
+            );
+          })}
           </div>
 
           {/* Upload form */}
