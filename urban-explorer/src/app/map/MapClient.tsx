@@ -302,12 +302,12 @@ export default function MapClient() {
               });
 
               if (res.ok) {
-                const form = e.currentTarget as HTMLFormElement;
-                form.reset(); // ✅ safely reset before unmounting the modal
+                const form = e.currentTarget as HTMLFormElement | null;
+                if (form) form.reset();
                 const { spot } = await res.json();
                 setSpots((prev) => [...prev, spot]);
-                setNewPinCoords(null); // ✅ unmount afterward
-              }              
+                setNewPinCoords(null);
+              }                                  
             }}
           >
             <input
