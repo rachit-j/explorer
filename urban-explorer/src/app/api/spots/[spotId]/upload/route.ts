@@ -32,7 +32,7 @@ export async function POST(
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  const uploadPath = join(process.cwd(), "public", "uploads", spotId);
+  const uploadPath = "/app/public/uploads/" + spotId;
   const filename = `${Date.now()}_${file.name}`;
 
   mkdirSync(uploadPath, { recursive: true });
