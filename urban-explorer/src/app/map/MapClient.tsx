@@ -89,7 +89,13 @@ export default function MapClient() {
 
       {/* Spot Info Modal */}
       {selected && (
-        <div className="absolute bottom-4 left-4 bg-white text-black p-4 rounded shadow-md z-10 max-w-md">
+        <div
+          className={`absolute bg-white text-black rounded shadow-md z-10 overflow-y-auto transition-all duration-300 ${
+            expanded
+              ? "inset-4 p-6"
+              : "bottom-4 left-4 p-4 max-w-md"
+          }`}
+        >
           <h2 className="text-xl font-bold">{selected.title}</h2>
           <p className="text-sm">{selected.description}</p>
 
