@@ -54,6 +54,8 @@ export default function MapClient() {
     }
   };
 
+  const [rotations, setRotations] = useState<{ [id: string]: number }>({});
+
   return (
     <div className="h-screen w-full relative bg-black">
       <MapContainer
@@ -250,12 +252,28 @@ export default function MapClient() {
                   {selected.images?.map((img) => {
                     const safeUrl = img.url.replace(/^\/public/, '');
                     return (
-                      <img
-                        key={img.id || img.url}
-                        src={safeUrl}
-                        alt=""
-                        className="w-full h-auto object-cover rounded"
-                      />
+                      <div key={img.id || img.url} className="relative group">
+                        <img
+                          src={safeUrl}
+                          alt=""
+                          className="w-full h-auto object-cover rounded transition-transform"
+                          style={{
+                            transform: `rotate(${rotations[img.id || img.url] || 0}deg)`,
+                          }}
+                        />
+                        <button
+                          className="absolute top-2 right-2 text-xs bg-black text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
+                          onClick={() => {
+                            const key = img.id || img.url;
+                            setRotations((prev) => ({
+                              ...prev,
+                              [key]: ((prev[key] || 0) + 90) % 360,
+                            }));
+                          }}
+                        >
+                          ⟳
+                        </button>
+                      </div>
                     );
                   })}
                 </div>
