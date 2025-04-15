@@ -15,7 +15,6 @@
     "browser-image-compression": "^2.0.2",
     "heic2any": "^0.0.4",
     "leaflet": "^1.9.4",
-    "mime": "^4.0.7",
     "next": "15.2.4",
     "next-auth": "^4.24.11",
     "react": "^19.0.0",
