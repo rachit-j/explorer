@@ -1,0 +1,1 @@
+0 */3 * * * /home/ubuntu/containers/explorer/restart-explorer.sh >> /var/log/explorer-restart.log 2>&1
