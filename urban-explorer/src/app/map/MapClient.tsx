@@ -23,6 +23,7 @@ export default function MapClient() {
   const [selected, setSelected] = useState<Spot | null>(null);
   const [newPinCoords, setNewPinCoords] = useState<[number, number] | null>(null);
   const [previews, setPreviews] = useState<{ url: string; file: File }[]>([]);
+  const [expanded, setExpanded] = useState(false); // New expanded state
 
   useEffect(() => {
     fetch("/api/spots")
@@ -232,27 +233,35 @@ export default function MapClient() {
           <button onClick={() => setSelected(null)} className="text-red-500 mt-4 block">
             Close
           </button>
-          <button
-            onClick={async () => {
-              const res = await fetch(`/api/spots/${selected.id}`, { method: 'DELETE' });
-              if (res.ok) {
-                setSpots(prev => prev.filter(spot => spot.id !== selected.id));
-                setSelected(null);
-              } else {
-                alert('Failed to delete the spot');
-              }
-            }}
-            className="bg-red-600 text-white mt-4 px-4 py-2 rounded"
-          >
-            Delete Spot
+          <button onClick={() => setExpanded(!expanded)} className="text-blue-500 mt-4 block">
+            {expanded ? 'Collapse' : 'Expand'}
           </button>
-
-          <button
-            onClick={() => setSelected(null)}
-            className="text-red-500 mt-4 block"
-          >
-            Close
-          </button>
+          {expanded && (
+            <div className="mt-4 border-t border-gray-300 pt-4 flex flex-col gap-4">
+              <div>
+                <h3 className="font-semibold text-lg mb-1">Full-size Images</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {selected.images?.map((img) => {
+                    const safeUrl = img.url.replace(/^\/public/, '');
+                    return (
+                      <img
+                        key={img.id || img.url}
+                        src={safeUrl}
+                        alt=""
+                        className="w-full h-auto object-cover rounded"
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg mb-1">Coordinates</h3>
+                <p className="text-sm text-gray-700">
+                  Lat: {selected.latitude.toFixed(5)}, Lng: {selected.longitude.toFixed(5)}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
