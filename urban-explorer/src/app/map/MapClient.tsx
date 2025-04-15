@@ -250,7 +250,7 @@ export default function MapClient() {
                 <h3 className="font-semibold text-lg mb-1">Full-size Images</h3>
                 <div className="grid grid-cols-2 gap-4">
                   {selected.images?.map((img) => {
-                    const safeUrl = img.url.replace(/^\/public/, '');
+                    const safeUrl = `/api/uploads${img.url}`;
                     return (
                       <div key={img.id || img.url} className="relative group">
                         <img
